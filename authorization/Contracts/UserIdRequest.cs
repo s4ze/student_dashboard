@@ -1,7 +1,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace composition.Contracts;
+namespace authorization.Contracts;
 
 public record class UserIdRequest
 {
