@@ -1,10 +1,10 @@
-using messages.Contracts;
-using messages.Data;
-using messages.Models;
+using profile.Contracts;
+using profile.Data;
+using profile.Models;
 
-namespace messages.Services;
+namespace profile.Services;
 
-public class MessageService(DataContext context)
+public class MessagesService(DataContext context)
 {
     private readonly DataContext _context = context;
     public Message GetMessage(Guid messageId)

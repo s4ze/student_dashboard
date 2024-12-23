@@ -1,17 +1,17 @@
 using System.Net;
-using messages.Contracts;
-using messages.Data;
-using messages.Models;
-using messages.Services;
+using profile.Contracts;
+using profile.Data;
+using profile.Models;
+using profile.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace messages.Controllers
+namespace profile.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MessageController(MessageService messageService) : ControllerBase
+    public class MessagesController(MessagesService messagesService) : ControllerBase
     {
-        private readonly MessageService _messageService = messageService;
+        private readonly MessagesService _messagesService = messagesService;
         private static readonly HttpClient client = new();
         [HttpGet]
         [Route("{receiverId}")]
@@ -19,7 +19,7 @@ namespace messages.Controllers
         {
             try
             {
-                var result = _messageService.GetMessages(new Guid(receiverId));
+                var result = _messagesService.GetMessages(new Guid(receiverId));
                 if (result.Count > 0) return Ok(result);
                 return NoContent();
             }
@@ -40,7 +40,7 @@ namespace messages.Controllers
 
             try
             {
-                var message = _messageService.CreateMessage(receiverId, data);
+                var message = _messagesService.CreateMessage(receiverId, data);
 
                 return Ok(message);
             }
@@ -60,9 +60,9 @@ namespace messages.Controllers
         {
             try
             {
-                if (_messageService.CheckIfMessageExists(new Guid(messageId)))
+                if (_messagesService.CheckIfMessageExists(new Guid(messageId)))
                 {
-                    var message = _messageService.EditMessage(new Guid(messageId), data.Content);
+                    var message = _messagesService.EditMessage(new Guid(messageId), data.Content);
                     return Ok(message);
                 }
                 return NoContent();
@@ -78,7 +78,7 @@ namespace messages.Controllers
         {
             try
             {
-                var result = _messageService.RemoveMessage(new Guid(messageId));
+                var result = _messagesService.RemoveMessage(new Guid(messageId));
                 return result ? Ok() : NoContent();
             }
             catch (Exception ex)

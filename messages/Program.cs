@@ -1,4 +1,4 @@
-using messages.Data;
+using profile.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 

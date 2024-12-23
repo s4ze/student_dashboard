@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace messages.Models;
+namespace profile.Models;
 
 public class Message
 {

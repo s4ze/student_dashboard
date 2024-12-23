@@ -1,8 +1,8 @@
 using System;
-using messages.Models;
+using profile.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace messages.Data;
+namespace profile.Data;
 
 public class DataContext(DbContextOptions options) : DbContext(options)
 {
