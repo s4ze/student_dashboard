@@ -1,12 +1,80 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using messages.Contracts;
+using messages.Services;
 
-namespace profile.Controllers
+namespace messages.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProfileController : ControllerBase
+    public class ProfileController(ProfileService profileService) : ControllerBase
     {
-
+        private readonly ProfileService _profileService = profileService;
+        [HttpGet]
+        [Route("user/{userId}")]
+        public IActionResult GetUser([FromRoute] string userId)
+        {
+            try
+            {
+                if (_profileService.CheckIfUserExists(new Guid(userId)))
+                {
+                    var user = _profileService.GetUser(new Guid(userId));
+                    return Ok(user);
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPut]
+        [Route("user/{userId}")]
+        public IActionResult EditUser([FromRoute] string userId, [FromBody] EditUserRequest data)
+        {
+            try
+            {
+                if (_profileService.CheckIfUserExists(new Guid(userId)))
+                {
+                    var user = _profileService.EditUser(new Guid(userId), data);
+                    return Ok(user);
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpDelete]
+        [Route("user/{userId}")]
+        public IActionResult RemoveUser([FromRoute] string userId)
+        {
+            try
+            {
+                if (_profileService.CheckIfUserExists(new Guid(userId)))
+                {
+                    _profileService.RemoveUser(new Guid(userId));
+                    return Ok();
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("userexists/{userId}")]
+        public IActionResult CheckIfUserExists([FromRoute] string userId)
+        {
+            try
+            {
+                return Ok(_profileService.CheckIfUserExists(new Guid(userId)));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

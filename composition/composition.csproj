@@ -12,6 +12,12 @@
 
   <ItemGroup>
     <Folder Include="Controllers/" />
+    <Folder Include="Contracts/" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
 
 </Project>

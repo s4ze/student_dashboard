@@ -7,6 +7,11 @@ namespace composition.Controllers
     [ApiController]
     public class CoursesController : ControllerBase
     {
+        /// <summary>
+        /// Get user's subscribed courses
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("{userId}")]
         public IActionResult GetUsersCourses([FromRoute] string userId)
@@ -29,8 +34,12 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Create course
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpPost]
-        [Route("")]
         public IActionResult CreateCourse([FromBody] CreateCourseRequest data)
         {
             // send req to Authorization and Courses service to authorize admin and edit course 
@@ -45,6 +54,12 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Edit course by its id
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("{courseId}")]
         public IActionResult EditCourse([FromRoute] string courseId, [FromBody] EditCourseRequest data)
@@ -61,6 +76,11 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Get user's grade on course
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("grade/{courseId}/{userId}")]
         public IActionResult GetCourseGrade([FromRoute] UsersCourseRequest data)
@@ -77,6 +97,11 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Subscribe user on course
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("subscribe/{courseId}/{userId}")]
         public IActionResult SubscribeOnCourse([FromRoute] UsersCourseRequest data)
@@ -93,6 +118,10 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Get a list of all courses
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("all")]
         public IActionResult GetCourses()

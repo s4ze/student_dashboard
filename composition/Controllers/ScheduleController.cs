@@ -7,6 +7,11 @@ namespace composition.Controllers
     [ApiController]
     public class ScheduleController : ControllerBase
     {
+        /// <summary>
+        /// Get schedule of group
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("group/{number}")]
         public IActionResult GetGroupSchedule([FromRoute] string number)
@@ -15,6 +20,12 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Edit group's schedule
+        /// </summary>
+        /// <param name="number"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("group/{number}")]
         public IActionResult EditGroupSchedule([FromRoute] string number, [FromBody] EditGroupScheduleRequest data)
@@ -30,6 +41,11 @@ namespace composition.Controllers
             // send req to Profileservice to get professor's schedule
 
         } */
+        /// <summary>
+        /// Get schedule by student
+        /// </summary>
+        /// <param name="studentFullName"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("student")]
         public IActionResult GetStudentSchedule([FromBody] string studentFullName)

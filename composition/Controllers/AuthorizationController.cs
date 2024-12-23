@@ -7,6 +7,11 @@ namespace composition.Controllers
     [ApiController]
     public class AuthorizationController : ControllerBase
     {
+        /// <summary>
+        /// Log in
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("login")]
         public IActionResult Login([FromBody] LoginRequest data)
@@ -16,6 +21,11 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Register an account
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("register")]
         public IActionResult Register([FromBody] RegisterRequest data)
@@ -25,6 +35,10 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Get new access and refresh tokens
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("refresh")]
         public IActionResult RefreshToken()

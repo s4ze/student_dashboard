@@ -7,6 +7,11 @@ namespace composition.Controllers
     [ApiController]
     public class ProfileController : ControllerBase
     {
+        /// <summary>
+        /// Get user's data
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("user/{UserId}")]
         public IActionResult GetUser([FromRoute] string userId)
@@ -16,6 +21,12 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Edit user data
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("user/{userId}")]
         public IActionResult EditUser([FromRoute] string userId, [FromBody] EditUserRequest data)
@@ -26,6 +37,11 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Remove user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("user/{userId}")]
         public IActionResult RemoveUser([FromRoute] string userId)
@@ -35,6 +51,11 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Remove list of users
+        /// </summary>
+        /// <param name="userIds"></param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("user")]
         public IActionResult RemoveUsersRange([FromBody] List<string> userIds)
@@ -48,6 +69,12 @@ namespace composition.Controllers
 
             return Ok();
         }
+        /// <summary>
+        /// Set a role for user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("setrole/{userId}")]
         public IActionResult SetRole([FromRoute] string userId, [FromBody] string role)

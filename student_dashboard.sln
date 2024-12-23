@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "composition", "composition\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "authorization", "authorization\authorization.csproj", "{66BFB2D4-1B82-43AE-92CC-9D99A400CF3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "messaging", "messaging\messaging.csproj", "{8B368908-C5C9-4E38-91CE-9CF64BA06503}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "messaging", "messages\messages.csproj", "{8B368908-C5C9-4E38-91CE-9CF64BA06503}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "payments", "payments\payments.csproj", "{ED07829D-FC41-47B3-9E33-0DD20EEBF501}"
 EndProject
@@ -19,9 +19,6 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AF3CD736-4204-41E7-B8BE-4202343FF091}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -48,5 +45,8 @@ Global
 		{3CA86DA8-C145-4C1C-B9F6-A437A4A7EE0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CA86DA8-C145-4C1C-B9F6-A437A4A7EE0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CA86DA8-C145-4C1C-B9F6-A437A4A7EE0B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
