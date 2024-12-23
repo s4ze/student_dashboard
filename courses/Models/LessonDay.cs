@@ -1,8 +1,11 @@
-using System;
-
 namespace courses.Models;
 
 public class LessonDay
 {
-
+    public Guid LessonDayId { get; set; }
+    public Lesson Lesson1 { get; set; }
+    public Lesson Lesson2 { get; set; }
+    public Lesson Lesson3 { get; set; }
+    public Lesson Lesson4 { get; set; }
+    public Lesson Lesson5 { get; set; }
 }

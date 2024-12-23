@@ -77,6 +77,28 @@ namespace composition.Controllers
             return Ok();
         }
         /// <summary>
+        /// Remove course by it's id
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("{courseId}")]
+        public IActionResult RemoveCourse([FromRoute] string courseId)
+        {
+            // send req to Authorization and Courses service to authorize admin and edit course 
+
+            // return format:
+            // {
+            //     courseId: uuid,
+            //     title: string,
+            //     description: string,
+            //     createdAt: string
+            // }
+
+            return Ok();
+        }
+        /// <summary>
         /// Get user's grade on course
         /// </summary>
         /// <param name="data"></param>
