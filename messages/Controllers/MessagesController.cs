@@ -1,11 +1,8 @@
-using System.Net;
-using profile.Contracts;
-using profile.Data;
-using profile.Models;
-using profile.Services;
+using messages.Contracts;
+using messages.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace profile.Controllers
+namespace messages.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

@@ -1,4 +1,4 @@
-namespace profile.Contracts;
+namespace messages.Contracts;
 
 public record class MessageRequest
 {

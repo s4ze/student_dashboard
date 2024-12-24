@@ -24,7 +24,7 @@ namespace composition.Controllers
         /// <param name="data"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult Pay([FromBody] PayRequest data)
+        public IActionResult Pay([FromRoute] string paymentId, [FromBody] PayRequest data)
         {
             return Ok();
         }

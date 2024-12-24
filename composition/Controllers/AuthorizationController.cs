@@ -22,20 +22,6 @@ namespace composition.Controllers
             return Ok();
         }
         /// <summary>
-        /// Register an account
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("register")]
-        public IActionResult Register([FromBody] RegisterRequest data)
-        {
-            // send request to Authorization Service to create new account
-            // return (userId and email) variable in response
-
-            return Ok();
-        }
-        /// <summary>
         /// Get new access and refresh tokens
         /// </summary>
         /// <returns></returns>

@@ -1,5 +1,8 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace courses.Models;
 
+[NotMapped]
 public class LessonDay
 {
     public Guid LessonDayId { get; set; }

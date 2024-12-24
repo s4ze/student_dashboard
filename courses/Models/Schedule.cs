@@ -6,10 +6,10 @@ public class Schedule
 {
     public Guid ScheduleId { get; set; }
     [Column(TypeName = "VARCHAR(10)")] public string Group { get; set; }
-    public LessonDay Monday { get; set; }
-    public LessonDay Tuesday { get; set; }
-    public LessonDay Wednesday { get; set; }
-    public LessonDay Thursday { get; set; }
-    public LessonDay Friday { get; set; }
-    public LessonDay Saturday { get; set; }
+    [Column(TypeName = "JSONB")] public LessonDay Monday { get; set; } = new();
+    [Column(TypeName = "JSONB")] public LessonDay Tuesday { get; set; } = new();
+    [Column(TypeName = "JSONB")] public LessonDay Wednesday { get; set; } = new();
+    [Column(TypeName = "JSONB")] public LessonDay Thursday { get; set; } = new();
+    [Column(TypeName = "JSONB")] public LessonDay Friday { get; set; } = new();
+    [Column(TypeName = "JSONB")] public LessonDay Saturday { get; set; } = new();
 }

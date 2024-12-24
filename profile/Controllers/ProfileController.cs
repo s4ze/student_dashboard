@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using messages.Contracts;
 using messages.Services;
@@ -18,9 +19,35 @@ namespace messages.Controllers
                 if (_profileService.CheckIfUserExists(new Guid(userId)))
                 {
                     var user = _profileService.GetUser(new Guid(userId));
-                    return Ok(user);
+                    var result = new
+                    {
+                        user.Email,
+                        user.FirstName,
+                        user.LastName,
+                        user.Role,
+                        user.PhotoUrl,
+                        user.Contact,
+                        user.Group,
+                        user.CreatedAt
+                    };
+                    return Ok(result);
                 }
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        [Route("register")]
+        public IActionResult Register([FromBody] CreateUserRequest data)
+        {
+            try
+            {
+                var user = _profileService.CreateUser(data);
+                if (user == null) return Conflict("Email already taken");
+                return Ok(user);
             }
             catch (Exception ex)
             {

@@ -1,8 +1,8 @@
-using profile.Contracts;
-using profile.Data;
-using profile.Models;
+using messages.Contracts;
+using messages.Data;
+using messages.Models;
 
-namespace profile.Services;
+namespace messages.Services;
 
 public class MessagesService(DataContext context)
 {
