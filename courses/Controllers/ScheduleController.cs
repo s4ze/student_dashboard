@@ -37,10 +37,8 @@ namespace courses.Controllers
         {
             try
             {
-                Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
-                // send req to Authorization and Courses service to authorize admin and edit group's schedule
-
-                var response = await "http://localhost:5149/api/Authorization/role/".WithCookie("refreshToken", refreshToken).GetStringAsync();
+                var accessToken = ((string)Request.Headers.Authorization)[8..];
+                var response = await "http://localhost:5149/api/Authorization/role/".WithHeader("accessToken", accessToken).GetStringAsync();
                 if (response == "true" && _scheduleService.CheckIfScheduleExists(number))
                 {
                     var schedule = _scheduleService.EditGroupSchedule(number, data);
@@ -61,14 +59,14 @@ namespace courses.Controllers
             // send req to Profileservice to get professor's schedule
 
         } */
-        [HttpGet]
+        [HttpPost]
         [Route("student")]
         public async Task<IActionResult> GetStudentSchedule([FromBody] string userId)
         {
             try
             {
                 // send req to Profile and Courses service to get student's group schedule
-                var response = await "http://localhost:5288/api/Profile/userexists/".SetQueryParams(new { userId }).GetJsonAsync<User>();
+                var response = await "http://localhost:5288/api/Profile/user/".AppendPathSegment(userId).GetJsonAsync<User>();
                 if (_scheduleService.CheckIfScheduleExists(response.Group))
                 {
                     var schedule = _scheduleService.GetGroupSchedule(response.Group);

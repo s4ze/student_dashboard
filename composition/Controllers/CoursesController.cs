@@ -1,5 +1,8 @@
 using composition.Contracts;
 using Microsoft.AspNetCore.Mvc;
+using Flurl.Http;
+using Flurl;
+using System.Net;
 
 namespace composition.Controllers
 {
@@ -14,12 +17,23 @@ namespace composition.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{userId}")]
-        public IActionResult GetUsersCourses([FromRoute] string userId)
+        public async Task<IActionResult> GetCourses([FromRoute] string userId)
         {
             // check if userId from request data is same with route userId -> access
             // (else if) or check for admin role of user in Authorization service -> access
             // if accessed send req to Courses service to get by userId user's enrollments and it's courses data
-
+            var authorization = (string)Request.Headers.Authorization;
+            var authResponse = await "http://localhost:5149/api/Authorization/role/".WithHeader("Authorization", authorization).GetStringAsync();
+            if (authResponse == "admin")
+            {
+                var courseResponse = await "http://localhost:5107/api/Courses/".AppendPathSegment(userId).GetJsonAsync<object>();
+                if (courseResponse != null)
+                {
+                    return Ok(courseResponse);
+                }
+                return NoContent();
+            }
+            return Forbid();
 
             // return format:
             // [
@@ -31,8 +45,6 @@ namespace composition.Controllers
             //         grade: float
             //     }
             // ]
-
-            return Ok();
         }
         /// <summary>
         /// Create course

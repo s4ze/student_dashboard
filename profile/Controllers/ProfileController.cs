@@ -1,9 +1,8 @@
-using System.Net;
 using Microsoft.AspNetCore.Mvc;
-using messages.Contracts;
-using messages.Services;
+using profile.Contracts;
+using profile.Services;
 
-namespace messages.Controllers
+namespace profile.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -21,6 +20,7 @@ namespace messages.Controllers
                     var user = _profileService.GetUser(new Guid(userId));
                     var result = new
                     {
+                        user.UserId,
                         user.Email,
                         user.FirstName,
                         user.LastName,

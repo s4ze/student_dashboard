@@ -1,8 +1,8 @@
-using messages.Contracts;
-using messages.Data;
-using messages.Models;
+using profile.Contracts;
+using profile.Data;
+using profile.Models;
 
-namespace messages.Services;
+namespace profile.Services;
 
 public class ProfileService(DataContext context)
 {
@@ -29,13 +29,14 @@ public class ProfileService(DataContext context)
                 PhotoUrl = data.PhotoUrl ?? string.Empty,
                 Contact = data.Contact ?? string.Empty,
                 Group = data.Group ?? string.Empty,
-                Password = data.Password,
+                Password = BCrypt.Net.BCrypt.HashPassword(data.Password, BCrypt.Net.BCrypt.GenerateSalt(8)),
                 CreatedAt = DateTime.Now.ToString("MM-dd-yyyy HH:mmK"),
             };
             _context.Users.Add(user);
             _context.SaveChanges();
             var result = new
             {
+                user.UserId,
                 user.Email,
                 user.FirstName,
                 user.LastName,

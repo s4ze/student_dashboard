@@ -12,15 +12,22 @@ public class CoursesService(DataContext context)
         var course = _context.Courses.First(c => c.CourseId == courseId);
         return course;
     }
-    public List<Course> GetCourses(Guid userId)
+    public List<object> GetCourses(Guid userId)
     {
         var enrollments = _context.Enrollments.Where(e => e.UserId == userId);
-        var courses = new List<Course>();
+        var enrollmentsResult = new List<object>();
         foreach (Enrollment e in enrollments)
         {
-            courses.AddRange(_context.Courses.Where(c => c.CourseId == e.Course.CourseId));
+            enrollmentsResult.Add(new
+            {
+                e.Course.CourseId,
+                e.Course.Title,
+                e.Course.Description,
+                e.EnrollmentDate,
+                e.Grade
+            });
         }
-        return courses;
+        return enrollmentsResult;
     }
     public List<Course> GetAllCourses()
     {
@@ -41,6 +48,7 @@ public class CoursesService(DataContext context)
             Grade = 0,
             EnrollmentDate = DateTime.Now.ToString("MM-dd-yyyy HH:mmK")
         });
+        _context.SaveChanges();
     }
     public Course CreateCourse(CreateCourseRequest data)
     {

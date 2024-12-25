@@ -1,5 +1,6 @@
 using courses.Contracts;
 using courses.Services;
+using Flurl.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace courses.Controllers
@@ -16,6 +17,7 @@ namespace courses.Controllers
             try
             {
                 var courses = _coursesService.GetCourses(new Guid(userId));
+
                 return Ok(courses);
             }
             catch (Exception ex)
@@ -25,13 +27,19 @@ namespace courses.Controllers
         }
         [HttpGet]
         [Route("all")]
-        public IActionResult GetAllCourses()
+        public async Task<IActionResult> GetAllCourses()
         {
             try
             {
                 // send req to Auth service to check Admin role
-                var courses = _coursesService.GetAllCourses();
-                return Ok(courses);
+                var accessToken = ((string)Request.Headers.Authorization)[8..];
+                var response = await "http://localhost:5149/api/Authorization/role/".WithHeader("accessToken", accessToken).GetStringAsync();
+                if (response == "admin")
+                {
+                    var courses = _coursesService.GetAllCourses();
+                    return Ok(courses);
+                }
+                return Unauthorized();
             }
             catch (Exception ex)
             {
@@ -57,13 +65,18 @@ namespace courses.Controllers
         }
         [HttpPost]
         [Route("subscribe/{courseId}/{userId}")]
-        public IActionResult SubscribeToCourse([FromRoute] string courseId, [FromRoute] string userId)
+        public async Task<IActionResult> SubscribeToCourse([FromRoute] string courseId, [FromRoute] string userId)
         {
             try
             {
-                // send req to Auth service to check Admin role
-                var courses = _coursesService.GetAllCourses();
-                return Ok(courses);
+                var accessToken = ((string)Request.Headers.Authorization)[8..];
+                var response = await "http://localhost:5149/api/Authorization/role/".WithHeader("accessToken", accessToken).GetStringAsync();
+                if (response == "admin")
+                {
+                    _coursesService.SubscribeToCourse(new Guid(courseId), new Guid(userId));
+                    return Ok();
+                }
+                return Unauthorized();
             }
             catch (Exception ex)
             {
@@ -74,7 +87,7 @@ namespace courses.Controllers
         public IActionResult CreateCourse([FromBody] CreateCourseRequest data)
         {
             var course = _coursesService.CreateCourse(data);
-            return Ok();
+            return Ok(course);
         }
         [HttpPut]
         [Route("{courseId}")]

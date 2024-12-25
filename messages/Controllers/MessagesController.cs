@@ -29,7 +29,7 @@ namespace messages.Controllers
         [Route("{receiverId}")]
         public async Task<IActionResult> SendMessage([FromRoute] string receiverId, [FromBody] MessageRequest data)
         {
-            // send req to profile and check if users are existingreturn NoContent();
+            // send req to messages and check if users are existingreturn NoContent();
 
             var responseReceiver = await (await client.GetAsync(string.Format("http://localhost:ProfileServicePort/api/Profile/userexists/{0}", receiverId))).Content.ReadAsStringAsync();
             var responseSender = await (await client.GetAsync(string.Format("http://localhost:ProfileServicePort/api/Profile/userexists/{0}", data.SenderId))).Content.ReadAsStringAsync();

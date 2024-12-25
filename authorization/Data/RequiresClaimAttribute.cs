@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace authorization.Identity;
+namespace authorization.Data;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class RequiresClaimAttribute(string claimName, string claimValue) : Attribute, IAuthorizationFilter

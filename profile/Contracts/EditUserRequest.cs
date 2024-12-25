@@ -1,4 +1,4 @@
-namespace messages.Contracts;
+namespace profile.Contracts;
 
 public record class EditUserRequest
 {

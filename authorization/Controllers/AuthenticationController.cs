@@ -35,7 +35,6 @@ namespace authorization.Controllers
                     refreshToken = _authorizationService.GenerateRefreshToken(user.UserId),
                 });
             }
-
             return Unauthorized();
         }
     }

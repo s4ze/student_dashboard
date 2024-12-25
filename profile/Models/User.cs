@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace messages.Models;
+namespace profile.Models;
 
 public class User
 {
@@ -13,6 +13,6 @@ public class User
     [Column(TypeName = "TEXT")] public string Contact { get; set; }
     [Column(TypeName = "VARCHAR(10)")] public string Group { get; set; }
     [Column(TypeName = "VARCHAR(64)")] public string Password { get; set; }
-    [Column(TypeName = "VARCHAR(128)")] public string RefreshToken { get; set; }
+    [Column(TypeName = "VARCHAR(128)")] public string? RefreshToken { get; set; }
     [Column(TypeName = "VARCHAR(25)")] public required string CreatedAt { get; set; }
 }
