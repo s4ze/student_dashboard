@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-
 namespace authorization.Contracts;
 
 public record class RegisterRequest

@@ -96,7 +96,10 @@ namespace profile.Controllers
         {
             try
             {
-                return Ok(_profileService.CheckIfUserExists(new Guid(userId)));
+                return Ok(new UserExistsResponse()
+                {
+                    UserExists = _profileService.CheckIfUserExists(new Guid(userId)),
+                });
             }
             catch (Exception ex)
             {

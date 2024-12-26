@@ -84,15 +84,27 @@ namespace authorization.Controllers
             return Unauthorized();
         }
         [HttpGet]
-        [Route("role")]
-        public IActionResult GetRole()
+        [Route("role/{userId}")]
+        public IActionResult GetRole([FromRoute] string userId)
         {
-            var accessToken = Request.Headers.Authorization[0][7..];
-            if (accessToken != null && _authorizationService.ValidateToken(accessToken))
+            try
             {
-                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
-                var isAdmin = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.AdminClaimName).Value;
-                return Ok(isAdmin);
+                if (_authenticationService.CheckIfUserExistsById(new Guid(userId)))
+                {
+                    var user = _authenticationService.GetUserById(new Guid(userId));
+                    return Ok(new RoleResponse()
+                    {
+                        Role = user.Role
+                    });
+                }
+                else
+                {
+                    return NoContent();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
             return Unauthorized();
         }

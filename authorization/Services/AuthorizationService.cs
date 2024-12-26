@@ -67,7 +67,7 @@ public class AuthorizationService(AuthenticationService authenticationService, D
             );
 
         var refreshToken = new JwtSecurityTokenHandler().WriteToken(refreshTokenValues);
-        user!.RefreshToken = refreshToken;
+        user.RefreshToken = refreshToken;
         _context.SaveChanges();
         // if user is null - unexpected result in system
         return refreshToken;

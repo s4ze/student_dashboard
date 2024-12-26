@@ -24,6 +24,7 @@ namespace authorization.Controllers
                     HttpOnly = true,
                     Expires = DateTime.UtcNow.AddDays(15),
                 });
+                _authorizationService.SetRefreshToken(user.UserId, refreshToken);
 
                 return Ok(new
                 {
