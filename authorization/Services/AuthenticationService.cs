@@ -12,7 +12,15 @@ public class AuthenticationService(DataContext context)
         if (CheckIfUserExistsByEmail(data.Email))
         {
             var user = _context.Users.First(u => u.Email == data.Email);
-            return BCrypt.Net.BCrypt.Verify(data.Password, user.Password);
+            try
+            {
+                var result = BCrypt.Net.BCrypt.Verify(data.Password, user.Password);
+                return result;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
         return false;
     }

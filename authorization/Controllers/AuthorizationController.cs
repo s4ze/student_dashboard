@@ -24,22 +24,29 @@ namespace authorization.Controllers
                 var userId = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.UserIdClaimName).Value;
                 var user = _authenticationService.GetUserById(new Guid(userId));
 
-                return Ok(new
+                refreshToken = _authorizationService.GenerateRefreshToken(new Guid(userId));
+                Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions()
                 {
-                    user = new
+                    HttpOnly = true,
+                    Expires = DateTime.UtcNow.AddDays(15),
+                });
+                _authorizationService.SetRefreshToken(user.UserId, refreshToken);
+
+                return Ok(new UserAndTokenResponse()
+                {
+                    User = new UserAndTokenResponse.EditedUser
                     {
-                        user.UserId,
-                        user.Email,
-                        user.FirstName,
-                        user.LastName,
-                        user.Role,
-                        user.PhotoUrl,
-                        user.Contact,
-                        user.Group,
-                        user.CreatedAt
+                        UserId = user.UserId,
+                        Email = user.Email,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Role = user.Role,
+                        PhotoUrl = user.PhotoUrl,
+                        Contact = user.Contact,
+                        Group = user.Group,
+                        CreatedAt = user.CreatedAt
                     },
-                    accessToken = _authorizationService.GenerateAccessToken(new Guid(userId), user.Role == "Admin"),
-                    refreshToken = _authorizationService.GenerateRefreshToken(new Guid(userId)),
+                    AccessToken = _authorizationService.GenerateAccessToken(new Guid(userId), user.Role == "admin")
                 });
             }
 
@@ -50,22 +57,37 @@ namespace authorization.Controllers
         public IActionResult ValidateRefreshToken()
         {
             Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
-            if (refreshToken == null) return Unauthorized();
-            return Ok(_authorizationService.ValidateToken(refreshToken));
+            if (refreshToken != null)
+            {
+                var result = _authorizationService.ValidateToken(refreshToken);
+                if (result == true) return Ok();
+            }
+            return Unauthorized();
         }
         [HttpGet]
         [Route("validateaccess")]
         public IActionResult ValidateAccessToken()
         {
-            var accessToken = ((string)Request.Headers.Authorization)[8..];
-            if (accessToken != null) Ok(_authorizationService.ValidateToken(accessToken));
+            try
+            {
+                var accessToken = Request.Headers.Authorization[0][7..];
+                if (accessToken != null)
+                {
+                    var result = _authorizationService.ValidateToken(accessToken);
+                    if (result == true) return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return Unauthorized();
         }
         [HttpGet]
         [Route("role")]
         public IActionResult GetRole()
         {
-            var accessToken = ((string)Request.Headers.Authorization)[8..];
+            var accessToken = Request.Headers.Authorization[0][7..];
             if (accessToken != null && _authorizationService.ValidateToken(accessToken))
             {
                 var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);

@@ -17,6 +17,14 @@ namespace authorization.Controllers
             if (_authenticationService.Login(data))
             {
                 var user = _authenticationService.GetUserByEmail(data.Email);
+
+                var refreshToken = _authorizationService.GenerateRefreshToken(user.UserId);
+                Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions()
+                {
+                    HttpOnly = true,
+                    Expires = DateTime.UtcNow.AddDays(15),
+                });
+
                 return Ok(new
                 {
                     user = new
@@ -31,8 +39,7 @@ namespace authorization.Controllers
                         user.Group,
                         user.CreatedAt
                     },
-                    accessToken = _authorizationService.GenerateAccessToken(user.UserId, user.Role == "Admin"),
-                    refreshToken = _authorizationService.GenerateRefreshToken(user.UserId),
+                    accessToken = _authorizationService.GenerateAccessToken(user.UserId, user.Role == "admin"),
                 });
             }
             return Unauthorized();

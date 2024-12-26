@@ -15,7 +15,7 @@ public class ProfileService(DataContext context)
     {
         return _context.Users.First(u => u.UserId == userId);
     }
-    public object? CreateUser(CreateUserRequest data)
+    public bool CreateUser(CreateUserRequest data)
     {
         if (!_context.Users.Any(u => u.Email == data.Email))
         {
@@ -25,7 +25,7 @@ public class ProfileService(DataContext context)
                 Email = data.Email,
                 FirstName = data.FirstName,
                 LastName = data.LastName,
-                Role = data.Role ?? string.Empty,
+                Role = "student",
                 PhotoUrl = data.PhotoUrl ?? string.Empty,
                 Contact = data.Contact ?? string.Empty,
                 Group = data.Group ?? string.Empty,
@@ -34,21 +34,10 @@ public class ProfileService(DataContext context)
             };
             _context.Users.Add(user);
             _context.SaveChanges();
-            var result = new
-            {
-                user.UserId,
-                user.Email,
-                user.FirstName,
-                user.LastName,
-                user.Role,
-                user.PhotoUrl,
-                user.Contact,
-                user.Group,
-                user.CreatedAt
-            };
-            return result;
+
+            return true;
         }
-        return null;
+        return false;
     }
     public object EditUser(Guid userId, EditUserRequest data)
     {
@@ -59,7 +48,7 @@ public class ProfileService(DataContext context)
         user.PhotoUrl = data.PhotoUrl ?? user.PhotoUrl;
         user.Contact = data.Contact ?? user.Contact;
         user.Group = data.Group ?? user.Group;
-        user.Password = data.Password ?? user.Password;
+        user.Password = BCrypt.Net.BCrypt.HashPassword(data.Password, BCrypt.Net.BCrypt.GenerateSalt(8));
         _context.SaveChanges();
         var result = new
         {

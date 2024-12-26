@@ -45,9 +45,9 @@ namespace profile.Controllers
         {
             try
             {
-                var user = _profileService.CreateUser(data);
-                if (user == null) return Conflict("Email already taken");
-                return Ok(user);
+                var result = _profileService.CreateUser(data);
+                return result ? Ok() : Conflict("Email already taken");
+                // return Redirect("http://localhost:5169/api/Authentication/login");
             }
             catch (Exception ex)
             {
