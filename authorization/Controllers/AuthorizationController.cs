@@ -24,13 +24,12 @@ namespace authorization.Controllers
                 var userId = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.UserIdClaimName).Value;
                 var user = _authenticationService.GetUserById(new Guid(userId));
 
-                refreshToken = _authorizationService.GenerateRefreshToken(new Guid(userId));
+                refreshToken = _authorizationService.GenerateToken(new Guid(userId), user.Role, true);
                 Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions()
                 {
                     HttpOnly = true,
                     Expires = DateTime.UtcNow.AddDays(15),
                 });
-                _authorizationService.SetRefreshToken(user.UserId, refreshToken);
 
                 return Ok(new UserAndTokenResponse()
                 {
@@ -46,7 +45,7 @@ namespace authorization.Controllers
                         Group = user.Group,
                         CreatedAt = user.CreatedAt
                     },
-                    AccessToken = _authorizationService.GenerateAccessToken(new Guid(userId), user.Role == "admin")
+                    AccessToken = _authorizationService.GenerateToken(new Guid(userId), user.Role)
                 });
             }
 
@@ -60,7 +59,7 @@ namespace authorization.Controllers
             if (refreshToken != null)
             {
                 var result = _authorizationService.ValidateToken(refreshToken);
-                if (result == true) return Ok();
+                if (result) return Ok();
             }
             return Unauthorized();
         }
@@ -106,7 +105,6 @@ namespace authorization.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return Unauthorized();
         }
     }
 }

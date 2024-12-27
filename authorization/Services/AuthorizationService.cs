@@ -28,13 +28,14 @@ public class AuthorizationService(AuthenticationService authenticationService, D
 
         return true;
     }
-    public string GenerateAccessToken(Guid userId, bool admin = false)
+    public string GenerateToken(Guid userId, string role = "student", bool isRefreshToken = false)
     {
-        List<Claim> claims = [new(JwtClaims.UserIdClaimName, userId.ToString())];
-        if (admin == true)
-            claims.Add(new(JwtClaims.AdminClaimName, "true"));
+        List<Claim> claims = [
+            new(JwtClaims.UserIdClaimName, userId.ToString()),
+            new(JwtClaims.RoleClaimName, role)
+        ];
 
-        JwtSecurityToken accessTokenValues = new(
+        JwtSecurityToken tokenValues = new(
                 claims: claims,
                 issuer: JwtOptions.ISSUER,
                 audience: JwtOptions.AUDIENCE,
@@ -42,41 +43,19 @@ public class AuthorizationService(AuthenticationService authenticationService, D
                     JwtOptions.GetSymmetricSecurityKey(),
                     SecurityAlgorithms.HmacSha256
                 ),
-                expires: DateTime.UtcNow.AddMinutes(30)
-            );
-        var accessToken = new JwtSecurityTokenHandler().WriteToken(accessTokenValues);
-
-        return accessToken;
-    }
-    public string GenerateRefreshToken(Guid userId)
-    {
-        var user = _authenticationService.GetUserById(userId);
-        List<Claim> claims = [new(JwtClaims.UserIdClaimName, userId.ToString())];
-        if (user.Role == "Admin")
-            claims.Add(new(JwtClaims.AdminClaimName, "true"));
-
-        JwtSecurityToken refreshTokenValues = new(
-                claims: claims,
-                issuer: JwtOptions.ISSUER,
-                audience: JwtOptions.AUDIENCE,
-                signingCredentials: new SigningCredentials(
-                    JwtOptions.GetSymmetricSecurityKey(),
-                    SecurityAlgorithms.HmacSha256
-                ),
-                expires: DateTime.UtcNow.AddDays(15)
+                expires: isRefreshToken ? DateTime.UtcNow.AddDays(15) : DateTime.UtcNow.AddMinutes(30)
             );
 
-        var refreshToken = new JwtSecurityTokenHandler().WriteToken(refreshTokenValues);
-        user.RefreshToken = refreshToken;
-        _context.SaveChanges();
-        // if user is null - unexpected result in system
-        return refreshToken;
+        var token = new JwtSecurityTokenHandler().WriteToken(tokenValues);
+        if (isRefreshToken) SetRefreshToken(userId, token);
+
+        return token;
     }
-    public bool SetRefreshToken(Guid guid, string refreshToken)
+    public bool SetRefreshToken(Guid userId, string refreshToken)
     {
         try
         {
-            var user = _authenticationService.GetUserById(guid);
+            var user = _authenticationService.GetUserById(userId);
             user.RefreshToken = refreshToken;
             _context.SaveChanges();
         }
