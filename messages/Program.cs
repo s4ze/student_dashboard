@@ -1,4 +1,5 @@
 using messages.Data;
+using messages.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -18,6 +19,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<DataContext>(
     options => options.UseNpgsql(DatabaseData.Connection)
 );
+builder.Services.AddScoped<MessagesService>();
 
 var app = builder.Build();
 

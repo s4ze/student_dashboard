@@ -14,30 +14,22 @@ public class MessagesService(DataContext context)
     }
     public List<Message> GetMessages(Guid userId)
     {
-        var messages = _context.Messages.Where(u => u.ReceiverId == userId);
-        return (List<Message>)messages;
+        var messages = _context.Messages.Where(u => u.ReceiverId == userId).ToList<Message>();
+        return messages;
     }
-    public Message CreateMessage(string receiverId, MessageRequest data)
+    public Message CreateMessage(Guid receiverId, MessageRequest data)
     {
         var message = new Message()
         {
             MessageId = Guid.NewGuid(),
             SenderId = new Guid(data.SenderId),
-            ReceiverId = new Guid(receiverId),
+            ReceiverId = receiverId,
             Content = data.Content,
             CreatedAt = DateTime.Now.ToString("MM-dd-yyyy HH:mmK"),
         };
         _context.Messages.Add(message);
         _context.SaveChanges();
-        /* var result = new
-        {
-            MessageId = message.MessageId.ToString(),
-            data.SenderId,
-            ReceiverId = receiverId,
-            data.Content,
-            message.CreatedAt
-        };
-        return result; */
+
         return message;
     }
     public Message EditMessage(Guid messageId, string content)

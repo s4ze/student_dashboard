@@ -11,13 +11,22 @@ public class PaymentsService(DataContext context)
     {
         return _context.Payments.Where(p => p.UserId == userId && p.Status == 'o').ToList();
     }
-    public bool PayPayment(Guid paymentId, PayRequest data)
+    public PayRequest PayPayment(Guid paymentId, double amount)
     {
         var payment = GetPayment(paymentId);
-        if (payment.Amount <= data.Amount) payment.Status = 'c';
-        payment.Amount -= data.Amount;
+        if (payment.Amount <= amount || payment.Status == 'c')
+        {
+            payment.Status = 'c';
+            payment.Amount = 0;
+        }
+        else
+            payment.Amount -= amount;
         _context.SaveChanges();
-        return payment.Status == 'c';
+        return new PayRequest() { Amount = payment.Amount };
+    }
+    public bool CheckIfPaymentExists(Guid paymentId)
+    {
+        return _context.Payments.Any(p => p.PaymentId == paymentId);
     }
     public Payment GetPayment(Guid paymentId)
     {

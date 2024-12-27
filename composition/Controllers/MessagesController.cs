@@ -36,6 +36,28 @@ namespace composition.Controllers
             // send req to Message service
             // return message
 
+            // send req to messages and check if users are existingreturn NoContent();
+
+            var responseReceiver = await(await client.GetAsync(string.Format("http://localhost:ProfileServicePort/api/Profile/userexists/{0}", receiverId))).Content.ReadAsStringAsync();
+            var responseSender = await(await client.GetAsync(string.Format("http://localhost:ProfileServicePort/api/Profile/userexists/{0}", data.SenderId))).Content.ReadAsStringAsync();
+            if (responseReceiver != "true" || responseSender != "true") return BadRequest("Receiver or sender doesn't exist");
+
+            try
+            {
+                var message = _messagesService.CreateMessage(receiverId, data);
+
+                return Ok(message);
+            }
+            catch (Exception ex)
+            {
+                var result = new
+                {
+                    error = ex.Message,
+                };
+
+                return BadRequest(result);
+            }
+
             return Ok();
         }
         /// <summary>

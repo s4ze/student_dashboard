@@ -20,7 +20,8 @@ namespace courses.Controllers
             try
             {
                 var courses = _coursesService.GetCourses(new Guid(userId));
-                return Ok(courses);
+                if (courses.Count > 0) return Ok(courses);
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -34,7 +35,8 @@ namespace courses.Controllers
             try
             {
                 var courses = _coursesService.GetAllCourses();
-                return Ok(courses);
+                if (courses.Count > 0) return Ok(courses);
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -79,7 +81,8 @@ namespace courses.Controllers
         public IActionResult CreateCourses([FromBody] List<CreateCourseRequest> data)
         {
             var courses = _coursesService.CreateCourses(data);
-            return Ok(courses);
+            if (courses.Count > 0) return Ok(courses);
+            return NoContent();
         }
         [HttpPut]
         [Route("{courseId}")]

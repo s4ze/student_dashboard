@@ -27,28 +27,16 @@ namespace messages.Controllers
         }
         [HttpPost]
         [Route("{receiverId}")]
-        public async Task<IActionResult> SendMessage([FromRoute] string receiverId, [FromBody] MessageRequest data)
+        public IActionResult SendMessage([FromRoute] string receiverId, [FromBody] MessageRequest data)
         {
-            // send req to messages and check if users are existingreturn NoContent();
-
-            var responseReceiver = await (await client.GetAsync(string.Format("http://localhost:ProfileServicePort/api/Profile/userexists/{0}", receiverId))).Content.ReadAsStringAsync();
-            var responseSender = await (await client.GetAsync(string.Format("http://localhost:ProfileServicePort/api/Profile/userexists/{0}", data.SenderId))).Content.ReadAsStringAsync();
-            if (responseReceiver != "true" || responseSender != "true") return BadRequest("Receiver or sender doesn't exist");
-
             try
             {
-                var message = _messagesService.CreateMessage(receiverId, data);
-
+                var message = _messagesService.CreateMessage(new Guid(receiverId), data);
                 return Ok(message);
             }
             catch (Exception ex)
             {
-                var result = new
-                {
-                    error = ex.Message,
-                };
-
-                return BadRequest(result);
+                return BadRequest(ex.Message);
             }
         }
         [HttpPut]

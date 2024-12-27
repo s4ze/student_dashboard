@@ -1,6 +1,7 @@
 using payments.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using payments.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<DataContext>(
     options => options.UseNpgsql(DatabaseData.Connection)
 );
+builder.Services.AddScoped<PaymentsService>();
 
 var app = builder.Build();
 

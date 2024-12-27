@@ -16,11 +16,14 @@ namespace payments.Controllers
             return Ok(_paymentsService.GetPayments(new Guid(userId)));
         }
         [HttpPost]
-        [Route("{userId}")]
-        public IActionResult PayPayment([FromRoute] string userId, [FromBody] PayRequest data)
+        [Route("{paymentId}")]
+        public IActionResult PayPayment([FromRoute] string paymentId, [FromBody] PayRequest data)
         {
-            _paymentsService.PayPayment(new Guid(userId), data);
-            return Ok();
+            if (_paymentsService.CheckIfPaymentExists(new Guid(paymentId)))
+            {
+                return Ok(_paymentsService.PayPayment(new Guid(paymentId), data.Amount));
+            }
+            return NoContent();
         }
         [HttpPost]
         [Route("bill")]
