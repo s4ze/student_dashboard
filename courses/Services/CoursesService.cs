@@ -1,6 +1,7 @@
 using courses.Contracts;
 using courses.Data;
 using courses.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace courses.Services;
 
@@ -12,20 +13,22 @@ public class CoursesService(DataContext context)
         var course = _context.Courses.First(c => c.CourseId == courseId);
         return course;
     }
-    public List<object> GetCourses(Guid userId)
+    public List<GetCoursesReponse> GetCourses(Guid userId)
     {
-        var enrollments = _context.Enrollments.Where(e => e.UserId == userId);
-        var enrollmentsResult = new List<object>();
+        var enrollments = _context.Enrollments.Where(e => e.UserId == userId).Include(e => e.Course);
+        var enrollmentsResult = new List<GetCoursesReponse>();
         foreach (Enrollment e in enrollments)
         {
-            enrollmentsResult.Add(new
-            {
-                e.Course.CourseId,
-                e.Course.Title,
-                e.Course.Description,
-                e.EnrollmentDate,
-                e.Grade
-            });
+            enrollmentsResult.Add(
+                new GetCoursesReponse()
+                {
+                    CourseId = e.Course.CourseId.ToString(),
+                    Title = e.Course.Title,
+                    Description = e.Course.Description,
+                    EnrollmentDate = e.EnrollmentDate,
+                    Grade = e.Grade
+                }
+            );
         }
         return enrollmentsResult;
     }
@@ -37,29 +40,41 @@ public class CoursesService(DataContext context)
     {
         return _context.Enrollments.First(e => e.Course.CourseId == courseId && e.UserId == userId).Grade;
     }
-    public void SubscribeToCourse(Guid courseId, Guid userId)
+    public bool SubscribeToCourse(Guid courseId, Guid userId)
     {
-        var course = GetCourse(courseId);
-        _context.Enrollments.Add(new Enrollment()
+        if (!_context.Enrollments.Any(e => e.Course.CourseId == courseId && e.UserId == userId))
         {
-            EnrollmentId = new Guid(),
-            UserId = userId,
-            Course = course,
-            Grade = 0,
-            EnrollmentDate = DateTime.Now.ToString("MM-dd-yyyy HH:mmK")
-        });
-        _context.SaveChanges();
+            var course = GetCourse(courseId);
+            _context.Enrollments.Add(new Enrollment()
+            {
+                EnrollmentId = new Guid(),
+                UserId = userId,
+                Course = course,
+                Grade = 0,
+                EnrollmentDate = DateTime.Now.ToString("MM-dd-yyyy HH:mmK")
+            });
+            _context.SaveChanges();
+            return true;
+        }
+        return false;
     }
-    public Course CreateCourse(CreateCourseRequest data)
+    public List<Course> CreateCourses(List<CreateCourseRequest> data)
     {
-        var course = new Course()
+        List<Course> result = [];
+        foreach (CreateCourseRequest c in data)
         {
-            CourseId = new Guid(),
-            Title = data.Title,
-            Description = data.Description,
-            CreatedAt = DateTime.Now.ToString("MM-dd-yyyy HH:mmK"),
-        };
-        return course;
+            var course = new Course()
+            {
+                CourseId = new Guid(),
+                Title = c.Title,
+                Description = c.Description,
+                CreatedAt = DateTime.Now.ToString("MM-dd-yyyy HH:mmK"),
+            };
+            result.Add(course);
+            _context.Courses.Add(course);
+        }
+        _context.SaveChanges();
+        return result;
     }
     public Course EditCourse(Guid courseId, CreateCourseRequest data)
     {

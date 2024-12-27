@@ -55,13 +55,20 @@ namespace authorization.Controllers
         [Route("validaterefresh")]
         public IActionResult ValidateRefreshToken()
         {
-            Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
-            if (refreshToken != null)
+            try
             {
-                var result = _authorizationService.ValidateToken(refreshToken);
-                if (result) return Ok();
+                Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
+                if (refreshToken != null)
+                {
+                    var result = _authorizationService.ValidateToken(refreshToken);
+                    if (result) return Ok();
+                }
+                return Unauthorized();
             }
-            return Unauthorized();
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpGet]
         [Route("validateaccess")]
@@ -73,14 +80,14 @@ namespace authorization.Controllers
                 if (accessToken != null)
                 {
                     var result = _authorizationService.ValidateToken(accessToken);
-                    if (result == true) return Ok();
+                    if (result) return Ok();
                 }
+                return Unauthorized();
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-            return Unauthorized();
         }
         [HttpGet]
         [Route("role/{userId}")]

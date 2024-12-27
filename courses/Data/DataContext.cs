@@ -11,32 +11,70 @@ public class DataContext(DbContextOptions options) : DbContext(options)
         modelBuilder.Ignore<Lesson>();
 
         modelBuilder.Entity<Schedule>()
-        .HasKey(s => s.ScheduleId);
+            .OwnsOne(s => s.Monday, ld =>
+            {
+                ld.ToJson();
+                ld.OwnsOne(ld => ld.Lesson1);
+                ld.OwnsOne(ld => ld.Lesson2);
+                ld.OwnsOne(ld => ld.Lesson3);
+                ld.OwnsOne(ld => ld.Lesson4);
+                ld.OwnsOne(ld => ld.Lesson5);
+            });
 
         modelBuilder.Entity<Schedule>()
-            .Property(s => s.Monday)
-            .HasColumnType("jsonb");
+            .OwnsOne(s => s.Tuesday, ld =>
+            {
+                ld.ToJson();
+                ld.OwnsOne(ld => ld.Lesson1);
+                ld.OwnsOne(ld => ld.Lesson2);
+                ld.OwnsOne(ld => ld.Lesson3);
+                ld.OwnsOne(ld => ld.Lesson4);
+                ld.OwnsOne(ld => ld.Lesson5);
+            });
 
         modelBuilder.Entity<Schedule>()
-            .Property(s => s.Tuesday)
-            .HasColumnType("jsonb");
+            .OwnsOne(s => s.Wednesday, ld =>
+            {
+                ld.ToJson();
+                ld.OwnsOne(ld => ld.Lesson1);
+                ld.OwnsOne(ld => ld.Lesson2);
+                ld.OwnsOne(ld => ld.Lesson3);
+                ld.OwnsOne(ld => ld.Lesson4);
+                ld.OwnsOne(ld => ld.Lesson5);
+            });
 
         modelBuilder.Entity<Schedule>()
-            .Property(s => s.Wednesday)
-            .HasColumnType("jsonb");
+            .OwnsOne(s => s.Thursday, ld =>
+            {
+                ld.ToJson();
+                ld.OwnsOne(ld => ld.Lesson1);
+                ld.OwnsOne(ld => ld.Lesson2);
+                ld.OwnsOne(ld => ld.Lesson3);
+                ld.OwnsOne(ld => ld.Lesson4);
+                ld.OwnsOne(ld => ld.Lesson5);
+            });
 
         modelBuilder.Entity<Schedule>()
-            .Property(s => s.Thursday)
-            .HasColumnType("jsonb");
+            .OwnsOne(s => s.Friday, ld =>
+            {
+                ld.ToJson();
+                ld.OwnsOne(ld => ld.Lesson1);
+                ld.OwnsOne(ld => ld.Lesson2);
+                ld.OwnsOne(ld => ld.Lesson3);
+                ld.OwnsOne(ld => ld.Lesson4);
+                ld.OwnsOne(ld => ld.Lesson5);
+            });
 
         modelBuilder.Entity<Schedule>()
-            .Property(s => s.Friday)
-            .HasColumnType("jsonb");
-
-        modelBuilder.Entity<Schedule>()
-            .Property(s => s.Saturday)
-            .HasColumnType("jsonb");
-        // modelBuilder.Ignore<LessonDay>();
+            .OwnsOne(s => s.Saturday, ld =>
+            {
+                ld.ToJson();
+                ld.OwnsOne(ld => ld.Lesson1);
+                ld.OwnsOne(ld => ld.Lesson2);
+                ld.OwnsOne(ld => ld.Lesson3);
+                ld.OwnsOne(ld => ld.Lesson4);
+                ld.OwnsOne(ld => ld.Lesson5);
+            });
     }
     public DbSet<Course> Courses { get; set; }
     public DbSet<Enrollment> Enrollments { get; set; }

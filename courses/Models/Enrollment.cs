@@ -4,9 +4,9 @@ namespace courses.Models;
 
 public class Enrollment
 {
-    public Guid EnrollmentId { get; set; }
-    public Guid UserId { get; set; }
-    public Course Course { get; set; }
-    [Column(TypeName = "NUMERIC(3,2)")] public float Grade { get; set; }
-    [Column(TypeName = "VARCHAR(10)")] public string EnrollmentDate { get; set; }
+    public required Guid EnrollmentId { get; set; }
+    public required Guid UserId { get; set; }
+    public required Course Course { get; set; }
+    [Column(TypeName = "NUMERIC(5,2)")] public float Grade { get; set; }
+    [Column(TypeName = "VARCHAR(25)")] public required string EnrollmentDate { get; set; }
 }

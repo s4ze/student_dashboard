@@ -1,8 +1,6 @@
 using courses.Contracts;
 using courses.Models;
 using courses.Services;
-using Flurl;
-using Flurl.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace courses.Controllers
@@ -12,6 +10,24 @@ namespace courses.Controllers
     public class ScheduleController(ScheduleService scheduleService) : ControllerBase
     {
         private readonly ScheduleService _scheduleService = scheduleService;
+        [HttpPost]
+        [Route("group/{number}")]
+        public IActionResult AddSchedule([FromRoute] string number, [FromBody] GroupScheduleRequest data)
+        {
+            try
+            {
+                if (!_scheduleService.CheckIfScheduleExists(number))
+                {
+                    var schedule = _scheduleService.CreateGroupSchedule(number, data);
+                    return Ok(schedule);
+                }
+                return BadRequest("Schedule for this group already exists");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpGet]
         [Route("group/{number}")]
         public IActionResult GetGroupSchedule([FromRoute] string number)
@@ -21,7 +37,7 @@ namespace courses.Controllers
                 if (_scheduleService.CheckIfScheduleExists(number))
                 {
                     var schedule = _scheduleService.GetGroupSchedule(number);
-                    // var result = _scheduleService.ConvertScheduleToResponse(schedule);
+                    // TODO: remove if works; var result = _scheduleService.ConvertScheduleToResponse(schedule);
                     return Ok(schedule);
                 }
                 return NoContent();
@@ -33,13 +49,11 @@ namespace courses.Controllers
         }
         [HttpPut]
         [Route("group/{number}")]
-        public async Task<IActionResult> EditGroupSchedule([FromRoute] string number, [FromBody] GroupScheduleRequest data)
+        public IActionResult EditGroupSchedule([FromRoute] string number, [FromBody] GroupScheduleRequest data)
         {
             try
             {
-                var accessToken = ((string)Request.Headers.Authorization)[8..];
-                var response = await "http://localhost:5149/api/Authorization/role/".WithHeader("accessToken", accessToken).GetStringAsync();
-                if (response == "true" && _scheduleService.CheckIfScheduleExists(number))
+                if (_scheduleService.CheckIfScheduleExists(number))
                 {
                     var schedule = _scheduleService.EditGroupSchedule(number, data);
                     // var result = _scheduleService.ConvertScheduleToResponse(schedule);
@@ -52,14 +66,26 @@ namespace courses.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        /* [HttpGet]
-        [Route("professor/{fullname}")]
-        public IActionResult GetProfessorSchedule(data)
+        [HttpDelete]
+        [Route("group/{number}")]
+        public IActionResult RemoveGroupSchedule([FromRoute] string number)
         {
-            // send req to Profileservice to get professor's schedule
-
-        } */
-        [HttpPost]
+            try
+            {
+                if (_scheduleService.CheckIfScheduleExists(number))
+                {
+                    _scheduleService.RemoveGroupSchedule(number);
+                    return Ok();
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        // Сделать через Composition
+        /* [HttpPost]
         [Route("student")]
         public async Task<IActionResult> GetStudentSchedule([FromBody] string userId)
         {
@@ -79,6 +105,6 @@ namespace courses.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
+        } */
     }
 }
