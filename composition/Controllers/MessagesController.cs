@@ -1,4 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using composition.Contracts;
+using composition.Data;
+using Flurl;
+using Flurl.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace composition.Controllers
@@ -11,71 +16,184 @@ namespace composition.Controllers
     public class MessagesController : ControllerBase
     {
         /// <summary>
-        /// Get user's messages
+        /// Получить сообщение
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("one/{messageId}")]
+        [ProducesResponseType(typeof(MessageResponse), (int)HttpStatusCode.OK, "application/json")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> GetMessageAsync([FromRoute] string messageId)
+        {
+            try
+            {
+                var accessToken = Request.Headers.Authorization[0][7..];
+                var responseValidateToken = await "http://localhost:5169/api/Authorization/validatetoken"
+                    .PostJsonAsync(new TokenRequest()
+                    {
+                        Token = accessToken
+                    });
+
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+                var role = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.RoleClaimName).Value;
+                var receiverUserId = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.UserIdClaimName).Value;
+
+                var responseMessage = await "http://localhost:5163/api/Messages/one"
+                        .AppendPathSegment(messageId)
+                        .GetAsync();
+                var resultMessage = await responseMessage.GetJsonAsync<MessageResponse>();
+
+                if (responseValidateToken.StatusCode == (int)HttpStatusCode.OK && responseMessage.StatusCode == (int)HttpStatusCode.OK
+                    && (receiverUserId == resultMessage.ReceiverId || role == "admin"))
+                    return Ok(resultMessage);
+
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// <summary>
+        /// Получение сообщений через получателя
         /// </summary>
         /// <param name="receiverId"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("{receiverId}")]
-        public IActionResult GetMessages([FromRoute] string receiverId)
+        [ProducesResponseType(typeof(List<MessageResponse>), (int)HttpStatusCode.OK, "application/json")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> GetMessagesAsync([FromRoute] string receiverId)
         {
-            // send req to message service
-            // return message
-
-            return Ok();
-        }
-        /// <summary>
-        /// Send a message to user
-        /// </summary>
-        /// <param name="receiverId">Продукт</param>
-        /// <returns>HJjkjl</returns>
-        [HttpPost]
-        [Route("{receiverId}")]
-        public IActionResult SendMessage([FromRoute] string receiverId, [FromBody] MessageRequest data)
-        {
-            // send req to Message service
-            // return message
-
-            // send req to messages and check if users are existingreturn NoContent();
-
-            /*var responseReceiver = await(await client.GetAsync(string.Format("http://localhost:ProfileServicePort/api/Profile/userexists/{0}", receiverId))).Content.ReadAsStringAsync();
-            var responseSender = await(await client.GetAsync(string.Format("http://localhost:ProfileServicePort/api/Profile/userexists/{0}", data.SenderId))).Content.ReadAsStringAsync();
-            if (responseReceiver != "true" || responseSender != "true") return BadRequest("Receiver or sender doesn't exist");
-
             try
             {
-                var message = _messagesService.CreateMessage(receiverId, data);
+                var accessToken = Request.Headers.Authorization[0][7..];
+                var responseValidateToken = await "http://localhost:5169/api/Authorization/validatetoken"
+                    .PostJsonAsync(new TokenRequest()
+                    {
+                        Token = accessToken
+                    });
 
-                return Ok(message);
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+                var role = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.RoleClaimName).Value;
+                var receiverUserId = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.UserIdClaimName).Value;
+
+                if (responseValidateToken.StatusCode == (int)HttpStatusCode.OK && (receiverUserId == receiverId || role == "admin"))
+                {
+                    var responseMessages = await "http://localhost:5163/api/Messages/"
+                        .AppendPathSegment(receiverId)
+                        .GetAsync();
+                    if (responseMessages.StatusCode == (int)HttpStatusCode.OK)
+                    {
+                        var resultMessages = await responseMessages.GetJsonAsync<List<MessageResponse>>();
+                        return Ok(resultMessages);
+                    }
+                }
+                return Unauthorized();
             }
             catch (Exception ex)
             {
-                var result = new
-                {
-                    error = ex.Message,
-                };
-
-                return BadRequest(result);
-            }*/
-
-            return Ok();
+                return BadRequest(ex.Message);
+            }
         }
         /// <summary>
-        /// Edit message
+        /// Отправление сообщение от пользователя пользователю
+        /// </summary>
+        /// <param name="receiverId"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("{receiverId}")]
+        [ProducesResponseType(typeof(MessageResponse), (int)HttpStatusCode.OK, "application/json")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> SendMessageAsync([FromRoute] string receiverId, [FromBody] CreateMessageRequest data)
+        {
+            try
+            {
+                var accessToken = Request.Headers.Authorization[0][7..];
+                var responseValidateToken = await "http://localhost:5169/api/Authorization/validatetoken"
+                    .PostJsonAsync(new TokenRequest()
+                    {
+                        Token = accessToken
+                    });
+
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+                var role = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.RoleClaimName).Value;
+                var receiverUserId = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.UserIdClaimName).Value;
+                var responseSenderExists = await "http://localhost:528/api/Profile/userexists"
+                    .AppendPathSegment(data.SenderId)
+                    .GetAsync();
+                var resultSenderExists = await responseSenderExists.GetJsonAsync<UserExistsResponse>();
+
+                if (responseValidateToken.StatusCode == (int)HttpStatusCode.OK && (receiverUserId == receiverId || role == "admin")
+                    && responseSenderExists.StatusCode == (int)HttpStatusCode.OK && resultSenderExists.UserExists == true)
+                {
+                    var responseMessages = await "http://localhost:5163/api/Messages/"
+                        .AppendPathSegment(receiverId)
+                        .PostJsonAsync(data);
+                    if (responseMessages.StatusCode == (int)HttpStatusCode.OK)
+                    {
+                        var resultMessages = await responseMessages.GetJsonAsync<MessageResponse>();
+                        return Ok(resultMessages);
+                    }
+                }
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// <summary>
+        /// Редактирование сообщения
         /// </summary>
         /// <param name="messageId"></param>
-        /// <param name="content"></param>
+        /// <param name="data"></param>
         /// <returns></returns>
         [HttpPut]
         [Route("{messageId}")]
-        public IActionResult EditMessage([FromRoute] string messageId, [FromBody] string content)
+        [ProducesResponseType(typeof(MessageResponse), (int)HttpStatusCode.OK, "application/json")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> EditMessageAsync([FromRoute] string messageId, [FromBody] EditMessageRequest data)
         {
-            // send req to get mesage and,
-            // check if message's senderId is equal to JWT's or Admin
-            // send req to Message service
-            // return message
+            try
+            {
+                var accessToken = Request.Headers.Authorization[0][7..];
+                var responseValidateToken = await "http://localhost:5169/api/Authorization/validatetoken"
+                    .PostJsonAsync(new TokenRequest()
+                    {
+                        Token = accessToken
+                    });
 
-            return Ok();
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+                var role = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.RoleClaimName).Value;
+                var receiverUserId = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.UserIdClaimName).Value;
+
+                var responseGetMessage = await "http://localhost:5163/api/Messages/one"
+                    .AppendPathSegment(messageId)
+                    .GetAsync();
+                var resultMessage = await responseGetMessage.GetJsonAsync<MessageResponse>();
+
+                if (responseValidateToken.StatusCode == (int)HttpStatusCode.OK && responseGetMessage.StatusCode == (int)HttpStatusCode.OK
+                    && (receiverUserId == resultMessage.ReceiverId || role == "admin"))
+                {
+                    var responseEditMessage = await "http://localhost:5163/api/Messages/"
+                        .AppendPathSegment(messageId)
+                        .PutJsonAsync(data);
+                    var resultEditMessage = await responseEditMessage.GetJsonAsync<MessageResponse>();
+                    return Ok(resultEditMessage);
+                }
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         /// <summary>
         /// Remove messages
@@ -84,13 +202,44 @@ namespace composition.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("{messageId}")]
-        public IActionResult RemoveMessage([FromRoute] string messageId)
+        [ProducesResponseType(typeof(UserExistsResponse), (int)HttpStatusCode.OK, "application/json")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> RemoveMessageAsync([FromRoute] string messageId)
         {
-            // check if user is sender or Admin on auth service
-            // send req to message service
-            // return message
+            try
+            {
+                var accessToken = Request.Headers.Authorization[0][7..];
+                var responseValidateToken = await "http://localhost:5169/api/Authorization/validatetoken"
+                    .PostJsonAsync(new TokenRequest()
+                    {
+                        Token = accessToken
+                    });
 
-            return Ok();
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+                var role = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.RoleClaimName).Value;
+                var receiverUserId = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.UserIdClaimName).Value;
+
+                var responseGetMessage = await "http://localhost:5163/api/Messages/one"
+                    .AppendPathSegment(messageId)
+                    .GetAsync();
+                var resultMessage = await responseGetMessage.GetJsonAsync<MessageResponse>();
+
+                if (responseValidateToken.StatusCode == (int)HttpStatusCode.OK && responseGetMessage.StatusCode == (int)HttpStatusCode.OK
+                    && (receiverUserId == resultMessage.ReceiverId || role == "admin"))
+                {
+                    var responseEditMessage = await "http://localhost:5163/api/Messages/"
+                        .AppendPathSegment(messageId)
+                        .DeleteAsync();
+                    var resultEditMessage = await responseEditMessage.GetJsonAsync<UserExistsResponse>();
+                    return Ok(resultEditMessage);
+                }
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

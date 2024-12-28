@@ -9,7 +9,23 @@ namespace messages.Controllers
     public class MessagesController(MessagesService messagesService) : ControllerBase
     {
         private readonly MessagesService _messagesService = messagesService;
-        private static readonly HttpClient client = new();
+        [HttpGet]
+        [Route("one/{messageId}")]
+        public IActionResult GetMessage([FromRoute] string messageId)
+        {
+            try
+            {
+                if (_messagesService.CheckIfMessageExists(new Guid(messageId)))
+                {
+                    return Ok(_messagesService.GetMessage(new Guid(messageId)));
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpGet]
         [Route("{receiverId}")]
         public IActionResult GetMessages([FromRoute] string receiverId)
