@@ -2,10 +2,11 @@ using authorization.Models;
 
 namespace authorization.Contracts;
 
-public record class UserAndTokenResponse
+public record class RefreshResponse
 {
     public EditedUser User { get; set; }
     public string AccessToken { get; set; }
+    public string RefreshToken { get; set; }
     public class EditedUser
     {
         public Guid UserId { get; set; }

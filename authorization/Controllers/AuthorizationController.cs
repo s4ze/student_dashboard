@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using authorization.Contracts;
 using authorization.Data;
 using authorization.Services;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace authorization.Controllers
@@ -12,28 +13,20 @@ namespace authorization.Controllers
     {
         private readonly AuthorizationService _authorizationService = authorizationService;
         private readonly AuthenticationService _authenticationService = authenticationService;
-        [HttpGet]
+        [HttpPost]
         [Route("refresh")]
-        public IActionResult RefreshToken()
+        public IActionResult RefreshToken([FromBody] RefreshRequest data)
         {
-            Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
-            if (refreshToken != null && _authorizationService.ValidateToken(refreshToken))
+            if (data.RefreshToken != null && _authorizationService.ValidateToken(data.RefreshToken))
             {
-                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(refreshToken);
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(data.RefreshToken);
 
                 var userId = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.UserIdClaimName).Value;
                 var user = _authenticationService.GetUserById(new Guid(userId));
 
-                refreshToken = _authorizationService.GenerateToken(new Guid(userId), user.Role, true);
-                Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions()
+                return Ok(new RefreshResponse()
                 {
-                    HttpOnly = true,
-                    Expires = DateTime.UtcNow.AddDays(15),
-                });
-
-                return Ok(new UserAndTokenResponse()
-                {
-                    User = new UserAndTokenResponse.EditedUser
+                    User = new RefreshResponse.EditedUser
                     {
                         UserId = user.UserId,
                         Email = user.Email,
@@ -45,7 +38,8 @@ namespace authorization.Controllers
                         Group = user.Group,
                         CreatedAt = user.CreatedAt
                     },
-                    AccessToken = _authorizationService.GenerateToken(new Guid(userId), user.Role)
+                    AccessToken = _authorizationService.GenerateToken(new Guid(userId), user.Role),
+                    RefreshToken = _authorizationService.GenerateToken(new Guid(userId), user.Role, true)
                 });
             }
 

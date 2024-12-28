@@ -18,13 +18,6 @@ namespace authorization.Controllers
             {
                 var user = _authenticationService.GetUserByEmail(data.Email);
 
-                var refreshToken = _authorizationService.GenerateToken(user.UserId, user.Role, true);
-                Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions()
-                {
-                    HttpOnly = true,
-                    Expires = DateTime.UtcNow.AddDays(15),
-                });
-
                 return Ok(new
                 {
                     user = new
@@ -40,6 +33,7 @@ namespace authorization.Controllers
                         user.CreatedAt
                     },
                     accessToken = _authorizationService.GenerateToken(user.UserId, user.Role),
+                    refreshToken = _authorizationService.GenerateToken(user.UserId, user.Role, true)
                 });
             }
             return Unauthorized();
