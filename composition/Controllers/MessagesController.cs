@@ -20,6 +20,9 @@ namespace composition.Controllers
         /// </summary>
         /// <param name="messageId"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpGet]
         [Route("one/{messageId}")]
         [ProducesResponseType(typeof(MessageResponse), (int)HttpStatusCode.OK, "application/json")]
@@ -61,6 +64,9 @@ namespace composition.Controllers
         /// </summary>
         /// <param name="receiverId"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpGet]
         [Route("{receiverId}")]
         [ProducesResponseType(typeof(List<MessageResponse>), (int)HttpStatusCode.OK, "application/json")]
@@ -105,6 +111,9 @@ namespace composition.Controllers
         /// <param name="receiverId"></param>
         /// <param name="data"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpPost]
         [Route("{receiverId}")]
         [ProducesResponseType(typeof(MessageResponse), (int)HttpStatusCode.OK, "application/json")]
@@ -154,6 +163,9 @@ namespace composition.Controllers
         /// <param name="messageId"></param>
         /// <param name="data"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpPut]
         [Route("{messageId}")]
         [ProducesResponseType(typeof(MessageResponse), (int)HttpStatusCode.OK, "application/json")]
@@ -200,6 +212,9 @@ namespace composition.Controllers
         /// </summary>
         /// <param name="messageId"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpDelete]
         [Route("{messageId}")]
         [ProducesResponseType(typeof(UserExistsResponse), (int)HttpStatusCode.OK, "application/json")]

@@ -13,7 +13,16 @@ namespace payments.Controllers
         [Route("{userId}")]
         public IActionResult GetPayments([FromRoute] string userId)
         {
-            return Ok(_paymentsService.GetPayments(new Guid(userId)));
+            try
+            {
+                var payments = _paymentsService.GetPayments(new Guid(userId));
+                if (payments.Count > 0) return Ok(payments);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpPost]
         [Route("{paymentId}")]

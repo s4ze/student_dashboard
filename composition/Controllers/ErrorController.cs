@@ -6,6 +6,10 @@ namespace composition.Controllers
     [Route("[controller]")]
     public class ErrorController : ControllerBase
     {
+        /// <summary>
+        /// Обработка ошибок
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Error()
         {

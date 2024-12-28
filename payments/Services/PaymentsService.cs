@@ -11,7 +11,7 @@ public class PaymentsService(DataContext context)
     {
         return _context.Payments.Where(p => p.UserId == userId && p.Status == 'o').ToList();
     }
-    public PayRequest PayPayment(Guid paymentId, double amount)
+    public Payment PayPayment(Guid paymentId, double amount)
     {
         var payment = GetPayment(paymentId);
         if (payment.Amount <= amount || payment.Status == 'c')
@@ -22,7 +22,7 @@ public class PaymentsService(DataContext context)
         else
             payment.Amount -= amount;
         _context.SaveChanges();
-        return new PayRequest() { Amount = payment.Amount };
+        return payment;
     }
     public bool CheckIfPaymentExists(Guid paymentId)
     {

@@ -16,6 +16,10 @@ namespace composition.Controllers
         /// <summary>
         /// Получение списка всех курсов
         /// </summary>
+        /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpGet]
         [Route("all")]
         [ProducesResponseType(typeof(List<GetCoursesReponse>), (int)HttpStatusCode.OK, "application/json")]
@@ -52,10 +56,13 @@ namespace composition.Controllers
             }
         }
         /// <summary>
-        /// Получить список курсов, на которые подписан пользователь
+        /// Получение списка курсов, на которые подписан пользователь
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpGet]
         [Route("{userId}")]
         [ProducesResponseType(typeof(List<GetCoursesReponse>), (int)HttpStatusCode.OK, "application/json")]
@@ -93,10 +100,13 @@ namespace composition.Controllers
             }
         }
         /// <summary>
-        /// Создать курс
+        /// Добавление курса
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpPost]
         [ProducesResponseType(typeof(List<GetCoursesReponse>), (int)HttpStatusCode.OK, "application/json")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
@@ -131,11 +141,14 @@ namespace composition.Controllers
             }
         }
         /// <summary>
-        /// Изменить курс по значению courseId
+        /// Изменение курса по значению courseId
         /// </summary>
         /// <param name="courseId"></param>
         /// <param name="data"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpPut]
         [Route("{courseId}")]
         [ProducesResponseType(typeof(List<GetCoursesReponse>), (int)HttpStatusCode.OK, "application/json")]
@@ -172,10 +185,13 @@ namespace composition.Controllers
             }
         }
         /// <summary>
-        /// Удалить курс по значению courseId
+        /// Удаление курса по значению courseId
         /// </summary>
         /// <param name="courseId"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpDelete]
         [Route("{courseId}")]
         [ProducesResponseType(typeof(Null), (int)HttpStatusCode.OK)]
@@ -216,6 +232,9 @@ namespace composition.Controllers
         /// <param name="courseId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpGet]
         [Route("grade/{courseId}/{userId}")]
         [ProducesResponseType(typeof(GradeReponse), (int)HttpStatusCode.OK, "application/json")]
@@ -256,11 +275,14 @@ namespace composition.Controllers
             }
         }
         /// <summary>
-        /// Подписать пользователя на курс
+        /// Подписание пользователя на курс
         /// </summary>
         /// <param name="courseId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpPost]
         [Route("subscribe/{courseId}/{userId}")]
         [ProducesResponseType(typeof(Null), (int)HttpStatusCode.OK)]

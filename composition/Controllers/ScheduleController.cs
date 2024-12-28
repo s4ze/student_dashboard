@@ -12,6 +12,15 @@ namespace composition.Controllers
     [ApiController]
     public class ScheduleController : ControllerBase
     {
+        /// <summary>
+        /// Добавление расписания группы
+        /// </summary>
+        /// <param name="number"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpPost]
         [Route("group/{number}")]
         [ProducesResponseType(typeof(ScheduleResponse), (int)HttpStatusCode.OK, "application/json")]
@@ -50,10 +59,13 @@ namespace composition.Controllers
             }
         }
         /// <summary>
-        /// Get schedule of group
+        /// Получение расписания группы
         /// </summary>
         /// <param name="number"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpGet]
         [Route("group/{number}")]
         [ProducesResponseType(typeof(ScheduleResponse), (int)HttpStatusCode.OK, "application/json")]
@@ -79,11 +91,14 @@ namespace composition.Controllers
             }
         }
         /// <summary>
-        /// Edit group's schedule
+        /// Редактирование расписания группы
         /// </summary>
         /// <param name="number"></param>
         /// <param name="data"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpPut]
         [Route("group/{number}")]
         [ProducesResponseType(typeof(ScheduleResponse), (int)HttpStatusCode.OK, "application/json")]
