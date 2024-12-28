@@ -9,6 +9,20 @@ namespace profile.Controllers
     public class ProfileController(ProfileService profileService) : ControllerBase
     {
         private readonly ProfileService _profileService = profileService;
+        [HttpPost]
+        [Route("register")]
+        public IActionResult Register([FromBody] RegisterRequest data)
+        {
+            try
+            {
+                var result = _profileService.CreateUser(data);
+                return result ? Ok() : Conflict("Email already taken");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpGet]
         [Route("user/{userId}")]
         public IActionResult GetUser([FromRoute] string userId)
@@ -18,36 +32,19 @@ namespace profile.Controllers
                 if (_profileService.CheckIfUserExists(new Guid(userId)))
                 {
                     var user = _profileService.GetUser(new Guid(userId));
-                    var result = new
+                    return Ok(new UserResponse()
                     {
-                        user.UserId,
-                        user.Email,
-                        user.FirstName,
-                        user.LastName,
-                        user.Role,
-                        user.PhotoUrl,
-                        user.Contact,
-                        user.Group,
-                        user.CreatedAt
-                    };
-                    return Ok(result);
+                        UserId = user.UserId.ToString(),
+                        Email = user.Email,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        PhotoUrl = user.PhotoUrl,
+                        Contact = user.Contact,
+                        Group = user.Group,
+                        CreatedAt = user.CreatedAt
+                    });
                 }
                 return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-        [HttpPost]
-        [Route("register")]
-        public IActionResult Register([FromBody] CreateUserRequest data)
-        {
-            try
-            {
-                var result = _profileService.CreateUser(data);
-                return result ? Ok() : Conflict("Email already taken");
-                // return Redirect("http://localhost:5169/api/Authentication/login");
             }
             catch (Exception ex)
             {

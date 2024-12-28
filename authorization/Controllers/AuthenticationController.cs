@@ -26,7 +26,6 @@ namespace authorization.Controllers
                         user.Email,
                         user.FirstName,
                         user.LastName,
-                        user.Role,
                         user.PhotoUrl,
                         user.Contact,
                         user.Group,

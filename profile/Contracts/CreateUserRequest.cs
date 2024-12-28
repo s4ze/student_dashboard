@@ -1,6 +1,6 @@
 namespace profile.Contracts;
 
-public record class CreateUserRequest
+public record class RegisterRequest
 {
     public required string Email { get; set; }
     public required string FirstName { get; set; }

@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace composition.Models;
 
 public class User

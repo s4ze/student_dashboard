@@ -22,7 +22,6 @@ namespace composition.Controllers
         /// <response code="401">Некорректные данные</response>
         [HttpPost]
         [Route("login")]
-        // [SwaggerOperation(Summary = "Получить данные с использованием куки")]
         [ProducesResponseType(typeof(UserTokenResponse), (int)HttpStatusCode.OK, "application/json")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
@@ -49,7 +48,6 @@ namespace composition.Controllers
                             Email = result.User.Email,
                             FirstName = result.User.FirstName,
                             LastName = result.User.LastName,
-                            Role = result.User.Role,
                             PhotoUrl = result.User.PhotoUrl,
                             Contact = result.User.Contact,
                             Group = result.User.Group,

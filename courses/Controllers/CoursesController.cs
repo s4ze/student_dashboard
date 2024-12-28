@@ -1,9 +1,5 @@
-using System.Net;
 using courses.Contracts;
-using courses.Data;
-using courses.Models;
 using courses.Services;
-using Flurl.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace courses.Controllers
@@ -49,7 +45,7 @@ namespace courses.Controllers
         {
             try
             {
-                if (_coursesService.CheckIfCourseExists(new Guid(courseId)))
+                if (_coursesService.CheckIfEnrollmentExists(new Guid(courseId), new Guid(userId)))
                 {
                     return Ok(new GradeReponse()
                     {

@@ -38,7 +38,7 @@ namespace composition.Controllers
 
             // send req to messages and check if users are existingreturn NoContent();
 
-            var responseReceiver = await(await client.GetAsync(string.Format("http://localhost:ProfileServicePort/api/Profile/userexists/{0}", receiverId))).Content.ReadAsStringAsync();
+            /*var responseReceiver = await(await client.GetAsync(string.Format("http://localhost:ProfileServicePort/api/Profile/userexists/{0}", receiverId))).Content.ReadAsStringAsync();
             var responseSender = await(await client.GetAsync(string.Format("http://localhost:ProfileServicePort/api/Profile/userexists/{0}", data.SenderId))).Content.ReadAsStringAsync();
             if (responseReceiver != "true" || responseSender != "true") return BadRequest("Receiver or sender doesn't exist");
 
@@ -56,7 +56,7 @@ namespace composition.Controllers
                 };
 
                 return BadRequest(result);
-            }
+            }*/
 
             return Ok();
         }

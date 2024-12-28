@@ -1,4 +1,10 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using composition.Contracts;
+using composition.Data;
+using composition.Models;
+using Flurl;
+using Flurl.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace composition.Controllers
@@ -8,95 +14,182 @@ namespace composition.Controllers
     public class ProfileController : ControllerBase
     {
         /// <summary>
-        /// Get user's data
+        /// Получить данные пользователя
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpGet]
-        [Route("user/{UserId}")]
-        public IActionResult GetUser([FromRoute] string userId)
+        [Route("user/{userId}")]
+        [ProducesResponseType(typeof(ResponseUser), (int)HttpStatusCode.OK, "application/json")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> GetUser([FromRoute] string userId)
         {
-            // send request to Authorization and Profile Services to get credentials and personal data of user with this userId
-            // return (user data (except password)) in response
-
-            return Ok();
+            try
+            {
+                var responseRole = await "http://localhost:5169/api/Authorization/role"
+                    .AppendPathSegment(userId)
+                    .GetAsync();
+                var dataRole = await responseRole.GetJsonAsync<RoleResponse>();
+                if (responseRole.StatusCode == (int)HttpStatusCode.OK && dataRole.Role == "admin")
+                {
+                    var responseGetUser = await "http://localhost:5288/api/Profile/user"
+                        .AppendPathSegment(userId)
+                        .GetAsync();
+                    var dataGetUser = await responseGetUser.GetJsonAsync<ResponseUser>();
+                    if (responseGetUser.StatusCode == (int)HttpStatusCode.OK)
+                        return Ok(new ResponseUser()
+                        {
+                            UserId = dataGetUser.UserId,
+                            Email = dataGetUser.Email,
+                            FirstName = dataGetUser.FirstName,
+                            LastName = dataGetUser.LastName,
+                            PhotoUrl = dataGetUser.PhotoUrl,
+                            Contact = dataGetUser.Contact,
+                            Group = dataGetUser.Group,
+                            CreatedAt = dataGetUser.CreatedAt
+                        });
+                }
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         /// <summary>
-        /// Register an account
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("register")]
-        public IActionResult Register([FromBody] RegisterRequest data)
-        {
-            // send request to Authorization Service to create new account
-            // return (userId and email) variable in response
-
-            return Ok();
-        }
-        /// <summary>
-        /// Edit user data
+        /// Изменить данные пользователя
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="data"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpPut]
         [Route("user/{userId}")]
-        public IActionResult EditUser([FromRoute] string userId, [FromBody] EditUserRequest data)
+        [ProducesResponseType(typeof(ResponseUser), (int)HttpStatusCode.OK, "application/json")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> EditUserAsync([FromRoute] string userId, [FromBody] EditUserRequest data)
         {
-            // check what type of data request has - credentials or/and personal
-            // send request to according to types of data to Authorization/Profile Service to edit user with this userId
-            // return (user data (except password)) in response
+            try
+            {
+                var accessToken = Request.Headers.Authorization[0][7..];
+                var responseValidateToken = await "http://localhost:5169/api/Authorization/validatetoken"
+                    .PostJsonAsync(new TokenRequest()
+                    {
+                        Token = accessToken
+                    });
 
-            return Ok();
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+                var role = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.RoleClaimName).Value;
+                var senderUserId = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.UserIdClaimName).Value;
+
+                if (responseValidateToken.StatusCode == (int)HttpStatusCode.OK && (senderUserId == userId || role == "admin"))
+                {
+                    var responseEditUser = await "http://localhost:5288/api/Profile/user"
+                        .AppendPathSegment(userId)
+                        .PutJsonAsync(data);
+                    var dataEditUser = await responseEditUser.GetJsonAsync<ResponseUser>();
+                    if (responseEditUser.StatusCode == (int)HttpStatusCode.OK)
+                        return Ok(new ResponseUser()
+                        {
+                            UserId = dataEditUser.UserId,
+                            Email = dataEditUser.Email,
+                            FirstName = dataEditUser.FirstName,
+                            LastName = dataEditUser.LastName,
+                            PhotoUrl = dataEditUser.PhotoUrl,
+                            Contact = dataEditUser.Contact,
+                            Group = dataEditUser.Group,
+                            CreatedAt = dataEditUser.CreatedAt
+                        });
+                }
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         /// <summary>
-        /// Remove user
+        /// Удалить пользователя
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>        
         [HttpDelete]
         [Route("user/{userId}")]
-        public IActionResult RemoveUser([FromRoute] string userId)
+        [ProducesResponseType(typeof(ResponseUser), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> RemoveUserAsync([FromRoute] string userId)
         {
-            // send request to Authorization and Profile Service to validate Admin role of sender or if it's the same user with this userId
-            // no data in response
+            try
+            {
+                var accessToken = Request.Headers.Authorization[0][7..];
+                var responseValidateToken = await "http://localhost:5169/api/Authorization/validatetoken"
+                    .PostJsonAsync(new TokenRequest()
+                    {
+                        Token = accessToken
+                    });
 
-            return Ok();
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+                var role = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.RoleClaimName).Value;
+                var senderUserId = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.UserIdClaimName).Value;
+                if (responseValidateToken.StatusCode == (int)HttpStatusCode.OK && (senderUserId == userId || role == "admin"))
+                {
+                    var responseRemoveUser = await "http://localhost:5288/api/Profile/user"
+                        .AppendPathSegment(userId)
+                        .DeleteAsync();
+                    if (responseRemoveUser.StatusCode == (int)HttpStatusCode.OK)
+                        return Ok();
+                }
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         /// <summary>
-        /// Remove list of users
+        /// Регистрация аккаунта
         /// </summary>
-        /// <param name="userIds"></param>
+        /// <param name="data"></param>
         /// <returns></returns>
-        [HttpDelete]
-        [Route("user")]
-        public IActionResult RemoveUsersRange([FromBody] List<string> userIds)
-        {
-            // send request to Authorization Service to validate Admin role of sender and remove users with those userIds
-            // send request to Profile Service to remove users with those userIds
-            // return 200 if deleted >= 1 user
-            // return 400 if deleted < 1 user
-            // return 403 if not admin
-            // return (userIds of deleted users) in response
-
-            return Ok();
-        }
-        /// <summary>
-        /// Set a role for user
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="role"></param>
-        /// <returns></returns>
+        /// <response code="200">Успешное выполнение</response>
+        /// <response code="400">Ошибка API</response>
+        /// <response code="401">Некорректные данные</response>
         [HttpPost]
-        [Route("setrole/{userId}")]
-        public IActionResult SetRole([FromRoute] string userId, [FromBody] string role)
+        [Route("register")]
+        [ProducesResponseType(typeof(ResponseUser), (int)HttpStatusCode.OK, "application/json")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest data)
         {
-            // send request to Authorization Service to validate Admin role of sender and set role to user with this userId
-            // return (user, role) in response
-
-            return Ok();
+            try
+            {
+                var response = await "http://localhost:5288/api/Profile/register"
+                    .PostJsonAsync(data);
+                if (response.StatusCode == 200)
+                    return Ok();
+                else if (response.StatusCode == 409)
+                    return Conflict("Email already taken");
+                else
+                {
+                    var result = await response.ResponseMessage.Content.ReadAsStringAsync();
+                    return BadRequest(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

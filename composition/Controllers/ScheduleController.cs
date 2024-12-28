@@ -1,4 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using composition.Contracts;
+using composition.Data;
+using Flurl;
+using Flurl.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace composition.Controllers
@@ -7,6 +12,43 @@ namespace composition.Controllers
     [ApiController]
     public class ScheduleController : ControllerBase
     {
+        [HttpPost]
+        [Route("group/{number}")]
+        [ProducesResponseType(typeof(ScheduleResponse), (int)HttpStatusCode.OK, "application/json")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> CreateGroupScheduleAsync([FromRoute] string number, [FromBody] ScheduleRequest data)
+        {
+            try
+            {
+                var accessToken = Request.Headers.Authorization[0][7..];
+                var responseValidateToken = await "http://localhost:5169/api/Authorization/validatetoken"
+                    .PostJsonAsync(new TokenRequest()
+                    {
+                        Token = accessToken
+                    });
+
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+                var role = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.RoleClaimName).Value;
+
+                if (responseValidateToken.StatusCode == (int)HttpStatusCode.OK && role == "admin")
+                {
+                    var responseSchedule = await "http://localhost:5107/api/Schedule/group/"
+                        .AppendPathSegment(number)
+                        .PostJsonAsync(data);
+                    if (responseSchedule.StatusCode == (int)HttpStatusCode.OK)
+                    {
+                        var resultSchedule = await responseSchedule.GetJsonAsync<ScheduleResponse>();
+                        return Ok(resultSchedule);
+                    }
+                }
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         /// <summary>
         /// Get schedule of group
         /// </summary>
@@ -14,11 +56,27 @@ namespace composition.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("group/{number}")]
-        public IActionResult GetGroupSchedule([FromRoute] string number)
+        [ProducesResponseType(typeof(ScheduleResponse), (int)HttpStatusCode.OK, "application/json")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> GetGroupScheduleAsync([FromRoute] string number)
         {
-            // send req to Courses service to get group's schedule
-
-            return Ok();
+            try
+            {
+                var responseSchedule = await "http://localhost:5107/api/Schedule/group/"
+                    .AppendPathSegment(number)
+                    .GetAsync();
+                if (responseSchedule.StatusCode == (int)HttpStatusCode.OK)
+                {
+                    var resultSchedule = await responseSchedule.GetJsonAsync<ScheduleResponse>();
+                    return Ok(resultSchedule);
+                }
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         /// <summary>
         /// Edit group's schedule
@@ -28,31 +86,40 @@ namespace composition.Controllers
         /// <returns></returns>
         [HttpPut]
         [Route("group/{number}")]
-        public IActionResult EditGroupSchedule([FromRoute] string number, [FromBody] EditGroupScheduleRequest data)
+        [ProducesResponseType(typeof(ScheduleResponse), (int)HttpStatusCode.OK, "application/json")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> EditGroupScheduleAsync([FromRoute] string number, [FromBody] ScheduleRequest data)
         {
-            // send req to Authorization and Courses service to authorize admin and edit group's schedule
+            try
+            {
+                var accessToken = Request.Headers.Authorization[0][7..];
+                var responseValidateToken = await "http://localhost:5169/api/Authorization/validatetoken"
+                    .PostJsonAsync(new TokenRequest()
+                    {
+                        Token = accessToken
+                    });
 
-            return Ok();
-        }
-        /* [HttpGet]
-        [Route("professor/{fullname}")]
-        public IActionResult GetProfessorSchedule(data)
-        {
-            // send req to Profileservice to get professor's schedule
+                var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+                var role = jwtSecurityToken.Claims.First(claim => claim.Type == JwtClaims.RoleClaimName).Value;
 
-        } */
-        /// <summary>
-        /// Get schedule by student
-        /// </summary>
-        /// <param name="studentFullName"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("student")]
-        public IActionResult GetStudentSchedule([FromBody] string studentFullName)
-        {
-            // send req to Profile and Courses service to get student's group schedule
-
-            return Ok();
+                if (responseValidateToken.StatusCode == (int)HttpStatusCode.OK && role == "admin")
+                {
+                    var responseSchedule = await "http://localhost:5107/api/Schedule/group/"
+                        .AppendPathSegment(number)
+                        .PutJsonAsync(data);
+                    if (responseSchedule.StatusCode == (int)HttpStatusCode.OK)
+                    {
+                        var resultSchedule = await responseSchedule.GetJsonAsync<ScheduleResponse>();
+                        return Ok(resultSchedule);
+                    }
+                }
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

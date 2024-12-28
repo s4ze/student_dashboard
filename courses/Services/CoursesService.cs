@@ -94,4 +94,8 @@ public class CoursesService(DataContext context)
     {
         return _context.Courses.Any(c => c.CourseId == courseId);
     }
+    public bool CheckIfEnrollmentExists(Guid courseId, Guid userId)
+    {
+        return _context.Enrollments.Any(e => e.Course.CourseId == courseId && e.UserId == userId);
+    }
 }

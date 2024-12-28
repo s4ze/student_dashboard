@@ -11,9 +11,9 @@ public class AuthorizationService(AuthenticationService authenticationService, D
     private readonly DataContext _context = context;
     public bool ValidateToken(string token)
     {
-        var handler = new JwtSecurityTokenHandler();
         try
         {
+            var handler = new JwtSecurityTokenHandler();
             handler.ValidateToken(token, JwtOptions.TokenValidationParameters, out SecurityToken validatedToken);
             if (validatedToken is not JwtSecurityToken jwtSecurityToken)
                 return false;

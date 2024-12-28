@@ -26,13 +26,12 @@ namespace authorization.Controllers
 
                 return Ok(new RefreshResponse()
                 {
-                    User = new RefreshResponse.EditedUser
+                    User = new RefreshResponse.ResponseUser
                     {
                         UserId = user.UserId,
                         Email = user.Email,
                         FirstName = user.FirstName,
                         LastName = user.LastName,
-                        Role = user.Role,
                         PhotoUrl = user.PhotoUrl,
                         Contact = user.Contact,
                         Group = user.Group,
@@ -45,37 +44,14 @@ namespace authorization.Controllers
 
             return Unauthorized();
         }
-        [HttpGet]
-        [Route("validaterefresh")]
-        public IActionResult ValidateRefreshToken()
+        [HttpPost]
+        [Route("validatetoken")]
+        public IActionResult ValidateToken([FromBody] TokenRequest data)
         {
             try
             {
-                Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
-                if (refreshToken != null)
-                {
-                    var result = _authorizationService.ValidateToken(refreshToken);
-                    if (result) return Ok();
-                }
-                return Unauthorized();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-        [HttpGet]
-        [Route("validateaccess")]
-        public IActionResult ValidateAccessToken()
-        {
-            try
-            {
-                var accessToken = Request.Headers.Authorization[0][7..];
-                if (accessToken != null)
-                {
-                    var result = _authorizationService.ValidateToken(accessToken);
-                    if (result) return Ok();
-                }
+                var result = _authorizationService.ValidateToken(data.Token);
+                if (result) return Ok();
                 return Unauthorized();
             }
             catch (Exception ex)

@@ -1,5 +1,4 @@
 using courses.Contracts;
-using courses.Models;
 using courses.Services;
 using Microsoft.AspNetCore.Mvc;
 
